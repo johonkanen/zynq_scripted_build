@@ -1,2 +1,2 @@
 # zynq_scripted_build
-Build scripts for creating zynq fpga builds
+Build scripts for testing zynq fpga scripted build
