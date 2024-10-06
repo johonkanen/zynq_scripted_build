@@ -3,10 +3,22 @@ create_project my_project ./my_project -part xc7z020clg400-1
 
 set_property target_language VHDL [current_project]
 
-# Step 2: Add source files (VHDL/Verilog)
-#add_files {./src/my_design.vhd}
+proc program_ram {} {
+    open_hw_manager
+    connect_hw_server -allow_non_jtag
+    open_hw_target
+    set_property PROGRAM.FILE {D:/dev/zynq_scripted_build/build/my_project/my_project.runs/impl_1/zynq_bd_wrapper.bit} [get_hw_devices xc7z020_1]
+    current_hw_device [get_hw_devices xc7z020_1]
+    set_property PROBES.FILE {} [get_hw_devices xc7z020_1]
+    set_property FULL_PROBES.FILE {} [get_hw_devices xc7z020_1]
+    set_property PROGRAM.FILE {D:/dev/zynq_scripted_build/build/my_project/my_project.runs/impl_1/zynq_bd_wrapper.bit} [get_hw_devices xc7z020_1]
+    program_hw_devices [get_hw_devices xc7z020_1]
+    refresh_hw_device [lindex [get_hw_devices xc7z020_1] 0]
+    refresh_hw_device -update_hw_probes false [lindex [get_hw_devices xc7z020_1] 0]
+}
 
-# Step 3: Create and configure the block design
+
+# Create and configure the block design
 create_bd_design "zynq_bd"
 
 startgroup
@@ -17,33 +29,31 @@ connect_bd_net [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins pr
 
 apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
 
-#startgroup
-#create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0
-#endgroup
-
-#startgroup
-#apply_bd_automation -rule xilinx.com:bd_rule:clkrst -config { Clk {/processing_system7_0/FCLK_CLK0 (50 MHz)} Freq {50} Ref_Clk0 {} Ref_Clk1 {} Ref_Clk2 {}}  [get_bd_pins proc_sys_reset_0/slowest_sync_clk]
-#endgroup
+startgroup
+set_property -dict [list \
+  CONFIG.PCW_UART0_PERIPHERAL_ENABLE {1} \
+  CONFIG.PCW_UART0_UART0_IO {MIO 14 .. 15} \
+] [get_bd_cells processing_system7_0]
+endgroup
 
 assign_bd_address
 regenerate_bd_layout
 
-# figure out how to make this use relative paths!
+save_bd_design
+# TODO: figure out how to make this use relative paths!
 make_wrapper -files [get_files D:/dev/zynq_scripted_build/build/my_project/my_project.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -top
 add_files -norecurse d:/dev/zynq_scripted_build/build/my_project/my_project.gen/sources_1/bd/zynq_bd/hdl/zynq_bd_wrapper.vhd
 
-#apply_bd_automation -rule processing_system7 -config { } [get_bd_cells ps7]
-#regenerate_bd_layout
-#
-## Step 4: Synthesize, implement, and generate the bitstream
-#synth_design -top top_module -part xc7z020clg400-1
-#opt_design
-#place_design
-#route_design
-#write_bitstream
-#
-## Step 5: Export hardware for SDK/Vitis
-#write_hw_platform -include_bit -force ./my_project.sdk/my_project.xsa
-#
-#exit
+create_ip_run [get_files -of_objects [get_fileset sources_1] D:/dev/zynq_scripted_build/build/my_project/my_project.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
+generate_target all [get_files  D:/dev/zynq_scripted_build/build/my_project/my_project.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
+export_simulation -of_objects [get_files D:/dev/zynq_scripted_build/build/my_project/my_project.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -directory D:/dev/zynq_scripted_build/build/my_project/my_project.ip_user_files/sim_scripts -ip_user_files_dir D:/dev/zynq_scripted_build/build/my_project/my_project.ip_user_files -ipstatic_source_dir D:/dev/zynq_scripted_build/build/my_project/my_project.ip_user_files/ipstatic -lib_map_path [list {modelsim=D:/dev/zynq_scripted_build/build/my_project/my_project.cache/compile_simlib/modelsim} {questa=D:/dev/zynq_scripted_build/build/my_project/my_project.cache/compile_simlib/questa} {riviera=D:/dev/zynq_scripted_build/build/my_project/my_project.cache/compile_simlib/riviera} {activehdl=D:/dev/zynq_scripted_build/build/my_project/my_project.cache/compile_simlib/activehdl}] -use_ip_compiled_libs -force -quiet
+
+launch_runs zynq_bd_processing_system7_0_0_synth_1 -jobs 32
+
+write_hw_platform -fixed -force -file D:/dev/zynq_scripted_build/build/my_project/zynq_bd_wrapper.xsa
+
+launch_runs synth_1 -jobs 32
+wait_on_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 32
+wait_on_run impl_1
 
