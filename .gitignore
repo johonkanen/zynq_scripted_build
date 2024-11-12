@@ -1,2 +1,7 @@
 build/
 build_sw/
+.Xil/
+logs/
+
+*.jou
+*.log
