@@ -3,7 +3,7 @@ variable tcl_path [ file dirname [ file normalize [ info script ] ] ]
 variable build_path ./
 
 # Step 1: Create a new project
-create_project my_project ./my_project -part xc7z020clg400-1 -force
+create_project my_project ./my_project -part xc7z020clg400-2 -force
 
 set_property target_language VHDL [current_project]
 
@@ -15,6 +15,7 @@ proc program_ram {bitfile} {
     set_property FULL_PROBES.FILE {} [get_hw_devices xc7z020_1]
     set_property PROGRAM.FILE $bitfile [get_hw_devices xc7z020_1]
     program_hw_devices [get_hw_devices xc7z020_1]
+    disconnect_hw_server
 }
 
 
@@ -35,6 +36,20 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_ex
 startgroup
     make_bd_pins_external  [get_bd_pins processing_system7_0/FCLK_CLK0]
     make_bd_pins_external  [get_bd_pins processing_system7_0/FCLK_RESET0_N]
+endgroup
+
+startgroup
+set_property -dict [list \
+  CONFIG.PCW_UART1_PERIPHERAL_ENABLE {1} \
+  CONFIG.PCW_UART1_UART1_IO {MIO 48 .. 49} \
+] [get_bd_cells processing_system7_0]
+endgroup
+
+startgroup
+set_property -dict [list \
+  CONFIG.PCW_UIPARAM_DDR_BUS_WIDTH {16 Bit} \
+  CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125} \
+] [get_bd_cells processing_system7_0]
 endgroup
     
 assign_bd_address
