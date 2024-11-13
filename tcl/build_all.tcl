@@ -11,13 +11,10 @@ proc program_ram {bitfile} {
     open_hw_manager
     connect_hw_server -allow_non_jtag
     open_hw_target
-    set_property PROGRAM.FILE {$bitfile} [get_hw_devices xc7z020_1]
-    current_hw_device [get_hw_devices xc7z020_1]
     set_property PROBES.FILE {} [get_hw_devices xc7z020_1]
     set_property FULL_PROBES.FILE {} [get_hw_devices xc7z020_1]
+    set_property PROGRAM.FILE $bitfile [get_hw_devices xc7z020_1]
     program_hw_devices [get_hw_devices xc7z020_1]
-    refresh_hw_device [lindex [get_hw_devices xc7z020_1] 0]
-    refresh_hw_device -update_hw_probes false [lindex [get_hw_devices xc7z020_1] 0]
 }
 
 
@@ -55,17 +52,43 @@ wait_on_run zynq_bd_processing_system7_0_0_synth_1
 
 add_files -norecurse $tcl_path/../vhdl_sources/generated_top.vhd
 add_files -norecurse $tcl_path/../vhdl_sources/top.vhd
+set_property top top [current_fileset]
 
 write_hw_platform -fixed -force -file $build_path/zynq_hw_export.xsa
 
-launch_runs synth_1 -jobs 32
-wait_on_run synth_1
-open_run synth_1 -name synth_1
+synth_design -rtl -rtl_skip_mlo -name rtl_1
+
 set_property IOSTANDARD LVCMOS33 [get_ports [list led_blinker]]
 place_ports led_blinker T12
+
+close [ open $build_path/placed_design.xdc w ]
+add_files -fileset constrs_1 $build_path/placed_design.xdc
+set_property target_constrs_file $build_path/placed_design.xdc [current_fileset -constrset]
+save_constraints -force
+
+launch_runs synth_1 -jobs 32
+wait_on_run synth_1
 
 launch_runs impl_1 -jobs 32
 wait_on_run impl_1
 
-launch_runs impl_1 -to_step write_bitstream -jobs 32
-wait_on_run impl_1
+open_run impl_1 -name impl_1
+write_bitstream -force jihuu.bit
+#close_design
+##launch_runs impl_1 -to_step write_bitstream -jobs 32
+##wait_on_run impl_1
+##
+##proc write_bit_and_flash_images {imagename} {
+##
+##    # #VCCO(zero) = IO = 2.5V || 3.3V, GND IO bank0 = 1.8v
+##    set_property CFGBVS VCCO [current_design]
+##    set_property CONFIG_VOLTAGE 3.3 [current_design]
+##    set_property BITSTREAM.Config.SPI_BUSWIDTH 4 [current_design]
+##    set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
+##
+##    write_bitstream -force $imagename.bit
+##    write_cfgmem -force  -format mcs -size 128 -interface SPIx4        \
+##        -loadbit "up 0x0 ${imagename}.bit"\
+##        -file $imagename.mcs
+##}
+program_ram jihuu.bit
