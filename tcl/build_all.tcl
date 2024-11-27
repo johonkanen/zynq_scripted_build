@@ -18,66 +18,7 @@ proc program_ram {bitfile} {
     disconnect_hw_server
 }
 
-
-# Create and configure the block design
-create_bd_design "zynq_bd"
-
-create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0
-
-set_property -dict [list \
-  CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {ARM PLL} \
-  CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {166.666} \
-  CONFIG.PCW_USE_M_AXI_GP0 {0} \
-] [get_bd_cells processing_system7_0]
-
-apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
-    make_bd_pins_external  [get_bd_pins processing_system7_0/FCLK_CLK0]
-    make_bd_pins_external  [get_bd_pins processing_system7_0/FCLK_RESET0_N]
-
-set_property CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V} [get_bd_cells processing_system7_0]
-
-set_property -dict [list \
-  CONFIG.PCW_UART1_PERIPHERAL_ENABLE {1} \
-  CONFIG.PCW_UART1_UART1_IO {MIO 48 .. 49} \
-] [get_bd_cells processing_system7_0]
-
-set_property -dict [list \
-  CONFIG.PCW_UIPARAM_DDR_BUS_WIDTH {16 Bit} \
-  CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125} \
-] [get_bd_cells processing_system7_0]
-
-set_property -dict [list \
-  CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} \
-  CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} \
-] [get_bd_cells processing_system7_0]
-
-set_property -dict [list \
-  CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
-  CONFIG.PCW_ENET0_GRP_MDIO_IO {MIO 52 .. 53} \
-] [get_bd_cells processing_system7_0]
-
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_timer:2.0 axi_timer_0
-
-set axi_timer_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_timer:2.0 axi_timer_0 ]
-set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
-set rst_ps7_0_166M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_166M ]
-
-# Create interface connections
-connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins axi_timer_0/S_AXI]
-connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
-connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
-connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins axi_interconnect_0/S00_AXI]
-
-# Create port connections
-connect_bd_net -net axi_timer_0_interrupt [get_bd_pins axi_timer_0/interrupt] [get_bd_pins processing_system7_0/IRQ_F2P]
-connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_ports FCLK_CLK0_0] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins rst_ps7_0_166M/slowest_sync_clk] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_timer_0/s_axi_aclk] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK]
-connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_ports FCLK_RESET0_N_0] [get_bd_pins rst_ps7_0_166M/ext_reset_in]
-connect_bd_net -net rst_ps7_0_166M_peripheral_aresetn [get_bd_pins rst_ps7_0_166M/peripheral_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_timer_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN]
-    
-assign_bd_address
-regenerate_bd_layout
-
-save_bd_design
+source $tcl_path/block_designs/zynq_bd.tcl
 
 generate_target all [get_files  $build_path/my_project/my_project.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
 
@@ -87,7 +28,7 @@ launch_runs zynq_bd_processing_system7_0_0_synth_1 -jobs 32
 export_simulation -of_objects [get_files $build_path/my_project/my_project.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -directory $build_path/my_project/my_project.ip_user_files/sim_scripts -ip_user_files_dir $build_path/my_project/my_project.ip_user_files -ipstatic_source_dir $build_path/my_project/my_project.ip_user_files/ipstatic -lib_map_path [list {modelsim=$build_path/my_project/my_project.cache/compile_simlib/modelsim} {questa=$build_path/my_project/my_project.cache/compile_simlib/questa} {riviera=$build_path/my_project/my_project.cache/compile_simlib/riviera} {activehdl=$build_path/my_project/my_project.cache/compile_simlib/activehdl}] -use_ip_compiled_libs -force -quiet
 wait_on_run zynq_bd_processing_system7_0_0_synth_1
 
-add_files -norecurse $tcl_path/../vhdl_sources/generated_top.vhd
+add_files -norecurse $tcl_path/block_designs/zynq_bd_wrapper.vhd
 add_files -norecurse $tcl_path/../vhdl_sources/top.vhd
 set_property top top [current_fileset]
 
