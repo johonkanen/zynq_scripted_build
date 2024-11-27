@@ -71,7 +71,7 @@ begin
     process(clock_100MHz)
     begin
         if rising_edge(clock_100MHz) then
-            if counter < 50e6 then
+            if counter < 25e6 then
                 counter <= counter + 1;
             else
                 counter <= 0;

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import vitis
 import os
-import time
 import shutil
 from datetime import datetime
 import platform as os_platform
