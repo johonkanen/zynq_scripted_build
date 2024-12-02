@@ -51,6 +51,8 @@ wait_on_run synth_1
 launch_runs impl_1 -jobs 32
 wait_on_run impl_1
 
+launch_runs impl_1 -to_step write_bitstream -jobs 32
+
 open_run impl_1 -name impl_1
 
 ## run sw build here
