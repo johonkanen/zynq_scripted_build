@@ -50,8 +50,7 @@ entity zynq_bd_wrapper is
     FIXED_IO_mio      : inout STD_LOGIC_VECTOR ( 53 downto 0 );
     FIXED_IO_ps_clk   : inout STD_LOGIC;
     FIXED_IO_ps_porb  : inout STD_LOGIC;
-    FIXED_IO_ps_srstb : inout STD_LOGIC;
-    GPIO_0_tri_o      : out STD_LOGIC_VECTOR ( 31 downto 0 )
+    FIXED_IO_ps_srstb : inout STD_LOGIC
   );
 end zynq_bd_wrapper;
 
@@ -94,8 +93,7 @@ architecture STRUCTURE of zynq_bd_wrapper is
     BRAM_PORTB_0_dout : in STD_LOGIC_VECTOR ( 31 downto 0 );
     BRAM_PORTB_0_en   : out STD_LOGIC;
     BRAM_PORTB_0_rst  : out STD_LOGIC;
-    BRAM_PORTB_0_we   : out STD_LOGIC_VECTOR ( 3 downto 0 );
-    GPIO_0_tri_o      : out STD_LOGIC_VECTOR ( 31 downto 0 )
+    BRAM_PORTB_0_we   : out STD_LOGIC_VECTOR ( 3 downto 0 )
   );
   end component zynq_bd;
 begin
@@ -137,8 +135,7 @@ zynq_bd_i: component zynq_bd
       FIXED_IO_mio(53 downto 0)      => FIXED_IO_mio(53 downto 0),
       FIXED_IO_ps_clk                => FIXED_IO_ps_clk,
       FIXED_IO_ps_porb               => FIXED_IO_ps_porb,
-      FIXED_IO_ps_srstb              => FIXED_IO_ps_srstb,
-      GPIO_0_tri_o(31 downto 0)      => GPIO_0_tri_o(31 downto 0)
+      FIXED_IO_ps_srstb              => FIXED_IO_ps_srstb
     );
 end STRUCTURE;
 

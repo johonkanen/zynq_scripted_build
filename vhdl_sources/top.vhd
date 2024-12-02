@@ -62,7 +62,6 @@ architecture STRUCTURE of top is
    signal BRAM_PORTB_0_en   : STD_LOGIC;
    signal BRAM_PORTB_0_rst  : STD_LOGIC;
    signal BRAM_PORTB_0_we   : STD_LOGIC_VECTOR ( 3 downto 0 );
-   signal GPIO_0_tri_o      : STD_LOGIC_VECTOR ( 31 downto 0 );
 
 begin
 
@@ -123,6 +122,6 @@ begin
       FIXED_IO_mio(53 downto 0)      => FIXED_IO_mio(53 downto 0),
       FIXED_IO_ps_clk                => FIXED_IO_ps_clk,
       FIXED_IO_ps_porb               => FIXED_IO_ps_porb,
-      FIXED_IO_ps_srstb              => FIXED_IO_ps_srstb,
-      GPIO_0_tri_o(31 downto 0)      => GPIO_0_tri_o(31 downto 0));
+      FIXED_IO_ps_srstb              => FIXED_IO_ps_srstb
+      );
 end STRUCTURE;

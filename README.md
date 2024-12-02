@@ -1,7 +1,9 @@
 # zynq_scripted_build
 Build scripts for testing zynq fpga scripted build
 
-currently the project needs to be in d:\dev\zynq_scripted_build
 
-to start the vitis console, run for example
-d:\xilinx\vitis\2024.1\bin\vitis.bat -i
+oneliner to build both software and hw
+
+> vivado -mode batch -source ../tcl/build_all.tcl ; vitis -s ../sw_build_scripts/build_lwip.py
+
+for the oneliner to work the project needs to be build from <path_to>/zynq_scripted_build/build

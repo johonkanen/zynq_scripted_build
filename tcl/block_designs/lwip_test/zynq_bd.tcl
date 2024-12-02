@@ -251,6 +251,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_CLK1_FREQ {10000000} \
     CONFIG.PCW_CLK2_FREQ {10000000} \
     CONFIG.PCW_CLK3_FREQ {10000000} \
+    CONFIG.PCW_CORE0_FIQ_INTR {1} \
     CONFIG.PCW_DDR_RAM_HIGHADDR {0x1FFFFFFF} \
     CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} \
     CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
@@ -262,7 +263,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {ARM PLL} \
     CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {166.666} \
     CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
-    CONFIG.PCW_IRQ_F2P_INTR {1} \
+    CONFIG.PCW_IRQ_F2P_INTR {0} \
     CONFIG.PCW_MIO_16_IOTYPE {LVCMOS 1.8V} \
     CONFIG.PCW_MIO_16_PULLUP {enabled} \
     CONFIG.PCW_MIO_16_SLEW {slow} \
@@ -372,7 +373,7 @@ proc create_root_design { parentCell } {
 
   # Create port connections
   connect_bd_net -net eka_timeri_interrupt  [get_bd_pins eka_timeri/interrupt] \
-  [get_bd_pins processing_system7_0/IRQ_F2P]
+  [get_bd_pins processing_system7_0/Core0_nFIQ]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn  [get_bd_pins proc_sys_reset_0/interconnect_aresetn] \
   [get_bd_pins smartconnect_0/aresetn]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn  [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
