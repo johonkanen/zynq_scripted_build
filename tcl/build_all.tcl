@@ -58,5 +58,3 @@ open_run impl_1 -name impl_1
 ## run sw build here
 #
 write_bitstream -force jihuu.bit
-#
-##program_ram jihuu.bit
