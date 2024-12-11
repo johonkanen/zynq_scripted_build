@@ -231,7 +231,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
     CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
     CONFIG.PCW_ACT_PCAP_PERIPHERAL_FREQMHZ {200.000000} \
-    CONFIG.PCW_ACT_QSPI_PERIPHERAL_FREQMHZ {10.000000} \
+    CONFIG.PCW_ACT_QSPI_PERIPHERAL_FREQMHZ {200.000000} \
     CONFIG.PCW_ACT_SDIO_PERIPHERAL_FREQMHZ {10.000000} \
     CONFIG.PCW_ACT_SMC_PERIPHERAL_FREQMHZ {10.000000} \
     CONFIG.PCW_ACT_SPI_PERIPHERAL_FREQMHZ {10.000000} \
@@ -263,6 +263,7 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_EN_EMIO_WDT {1} \
     CONFIG.PCW_EN_ENET0 {1} \
     CONFIG.PCW_EN_GPIO {1} \
+    CONFIG.PCW_EN_QSPI {1} \
     CONFIG.PCW_EN_TTC0 {1} \
     CONFIG.PCW_EN_TTC1 {1} \
     CONFIG.PCW_EN_UART1 {1} \
@@ -429,11 +430,20 @@ proc create_root_design { parentCell } {
     CONFIG.PCW_MIO_9_IOTYPE {LVCMOS 3.3V} \
     CONFIG.PCW_MIO_9_PULLUP {enabled} \
     CONFIG.PCW_MIO_9_SLEW {slow} \
-    CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART\
-1#UART 1#GPIO#GPIO#Enet 0#Enet 0} \
-    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#gpio[1]#gpio[2]#gpio[3]#gpio[4]#gpio[5]#gpio[6]#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#gpio[14]#gpio[15]#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#gpio[40]#gpio[41]#gpio[42]#gpio[43]#gpio[44]#gpio[45]#gpio[46]#gpio[47]#tx#rx#gpio[50]#gpio[51]#mdc#mdio}\
+    CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0#Enet 0#Enet\
+0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART 1#UART 1#GPIO#GPIO#Enet 0#Enet 0} \
+    CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#gpio[14]#gpio[15]#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#gpio[40]#gpio[41]#gpio[42]#gpio[43]#gpio[44]#gpio[45]#gpio[46]#gpio[47]#tx#rx#gpio[50]#gpio[51]#mdc#mdio}\
 \
     CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V} \
+    CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE {0} \
+    CONFIG.PCW_QSPI_GRP_IO1_ENABLE {0} \
+    CONFIG.PCW_QSPI_GRP_SINGLE_SS_ENABLE {1} \
+    CONFIG.PCW_QSPI_GRP_SINGLE_SS_IO {MIO 1 .. 6} \
+    CONFIG.PCW_QSPI_GRP_SS1_ENABLE {0} \
+    CONFIG.PCW_QSPI_PERIPHERAL_ENABLE {1} \
+    CONFIG.PCW_QSPI_PERIPHERAL_FREQMHZ {200} \
+    CONFIG.PCW_QSPI_QSPI_IO {MIO 1 .. 6} \
+    CONFIG.PCW_SINGLE_QSPI_DATA_MODE {x4} \
     CONFIG.PCW_TTC0_PERIPHERAL_ENABLE {1} \
     CONFIG.PCW_TTC0_TTC0_IO {EMIO} \
     CONFIG.PCW_TTC1_PERIPHERAL_ENABLE {1} \
@@ -511,6 +521,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -522,6 +533,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_gid_msg -ssname BD::TCL -id 2053 -severity "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
