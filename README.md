@@ -25,3 +25,11 @@ dingelidong_pingelipong:
 	C:\dev\remove\ws2\lwip_echo_server\build\lwip_echo_server.elf
 }
 ```
+
+an example one liner that runs through both builds and creates the bootimage is 
+
+```powershell
+vivado -mode batch -source D:\dev\zynq_scripted_build\tcl\build_all.tcl ;
+D:\Xilinx\Vitis\2024.2\bin\vitis.bat -s D:\dev\zynq_scripted_build\sw_build_scripts\build_lwip.py ;
+D:\Xilinx\Vitis\2024.2\bin\bootgen.bat -image D:\dev\zynq_scripted_build\sw_build_scripts\bootimage.bif -arch zynq -o combined_image.bin -w on
+```
