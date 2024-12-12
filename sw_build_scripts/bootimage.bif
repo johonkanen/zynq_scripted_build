@@ -1,0 +1,6 @@
+pimpom:
+{
+    [bootloader].\ws\platform\export\platform\sw\boot\fsbl.elf
+    .\jihuu.bit
+    .\ws\lwip_echo_server\build\lwip_echo_server.elf
+}
